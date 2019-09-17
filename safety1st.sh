@@ -9,7 +9,7 @@ else sed -i 's/xenial/bionic/g' /etc/apt/sources.list;fi
 OPT='-o Acquire::Check-Valid-Until=false -yq -o DPkg::Options::=--force-confdef -o DPkg::Options::=--force-confnew --allow-unauthenticated'
 apt-get update
 yes | apt $OPT dist-upgrade
-apt-get install openvpn openssl squid -y
+apt-get install openvpn openssl squid ca-certificates -y
 PORT="1194"
 IP=$(wget -qO- ipv4.icanhazip.com)
 PROTOCOL="TCP"
@@ -68,23 +68,25 @@ systemctl daemon-reload
 systemctl enable iptab
 cd /etc/openvpn
 if ! [ -d easy-rsa ];then
-wget -qO- https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.4/EasyRSA-3.0.4.tgz | tar xz
-mv EasyRSA-3.0.4 easy-rsa || return
+wget -qO- https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.5/EasyRSA-nix-3.0.5.tgz | tar xz
+mv EasyRSA-3.0.5 easy-rsa || return
+chown -R roor:root easy-rsa/
 cd easy-rsa
-touch pki/.rnd
 SERVER_CN="cn_$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 16 | head -n 1)"
 SERVER_NAME="server_$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 16 | head -n 1)"
 echo "set_var EASYRSA_KEY_SIZE $RSA_KEY_SIZE
 set_var EASYRSA_REQ_CN $SERVER_CN
-set_var EASYRSA_CRL_DAYS 3650" > vars
+set_var EASYRSA_CRL_DAYS 3650
+set_var EASYRSA_CERT_EXPIRE 3650" > vars
 	./easyrsa init-pki
+	touch pki/.rnd
 	./easyrsa --batch build-ca nopass
 	./easyrsa gen-crl
 	openvpn --genkey --secret /etc/openvpn/tls-auth.key
-	openssl dhparam -out dh.pem $DH_KEY_SIZE
+	openssl dhparam -out dh$DH_KEY_SIZE.pem $DH_KEY_SIZE
 	./easyrsa build-server-full $SERVER_NAME nopass
 	./easyrsa build-client-full $CLIENT nopass
-	cp pki/ca.crt pki/private/ca.key dh.pem pki/issued/$SERVER_NAME.crt pki/private/$SERVER_NAME.key /etc/openvpn/easy-rsa/pki/crl.pem /etc/openvpn
+	cp pki/ca.crt pki/private/ca.key dh$DH_KEY_SIZE.pem pki/issued/$SERVER_NAME.crt pki/private/$SERVER_NAME.key pki/crl.pem /etc/openvpn
 	chmod a+x /etc/openvpn/crl.pem
 else SERVER_NAME=`ls /etc/openvpn/server*.key | grep -oE 'server_[0-9a-Z]+'`; fi
 	# Generate server.conf
