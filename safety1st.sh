@@ -8,6 +8,7 @@ fi
 if ! [[ -e /etc/debian_version ]]; then
 	echo For DEBIAN and UBUNTU only.
 	exit 1;fi
+export DEBIAN_FRONTEND=noninteractive
 # Upgrade to Ubuntu 18.04/Debian 9
 if [[ `lsb_release -si` = Debian ]];then
 	sed -i 's/jessie/stretch/g' /etc/apt/sources.list
