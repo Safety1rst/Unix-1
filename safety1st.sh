@@ -145,5 +145,5 @@ OVPN
 systemctl restart {$sq,openvpn@server,iptab}
 clear
 wget -qO- "https://raw.githubusercontent.com/X-DCB/Unix/master/banner" | bash
-echo -ne "Your client config is saved in /root/client.ovpn.\nFinished! \n"
+echo -ne "\nYour client config is saved in /root/client.ovpn.\nFinished! \n"
 exit 0
