@@ -103,6 +103,7 @@ key $SERVER_NAME.key
 tls-auth tls-auth.key 0
 dh dh.pem
 cipher $CIPHER
+auth SHA1
 ncp-ciphers AES-128-GCM:AES-128-CBC
 tls-server
 tls-version-min 1.2
@@ -123,7 +124,7 @@ http-proxy $(wget -qO- ipv4.icanhazip.com) 993
 http-proxy-option VERSION 1.1
 http-proxy-option CUSTOM-HEADER Host weixin.qq.cn
 setenv opt block-outside-dns
-cipher AES-128-CBC
+cipher $CIPHER
 auth SHA1
 key-direction 1
 auth-nocache
