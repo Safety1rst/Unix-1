@@ -10,9 +10,11 @@ if ! [[ -e /etc/debian_version ]]; then
 	exit 1;fi
 export DEBIAN_FRONTEND=noninteractive
 # Upgrade to Ubuntu 18.04/Debian 9
-if [[ `lsb_release -si` = Debian ]];then
-	sed -i 's/jessie/stretch/g' /etc/apt/sources.list
-else sed -i 's/xenial/bionic/g' /etc/apt/sources.list;fi
+. /etc/os-release
+if [[ "$VERSION_CODENAME" = jessie ]];then
+	sed -i 's/jessie/stretch/g' /etc/apt/sources.list; fi
+if [[ "$VERSION_CODENAME" = xenial ]];then
+	sed -i 's/xenial/bionic/g' /etc/apt/sources.list;fi
 OPT='-o Acquire::Check-Valid-Until=false -yq -o DPkg::Options::=--force-confdef -o DPkg::Options::=--force-confnew --allow-unauthenticated'
 apt-get update
 yes | apt $OPT dist-upgrade
@@ -83,7 +85,8 @@ echo 'http_access allow all
 via off
 http_port 0.0.0.0:993
 visible_hostname udp.team' > /etc/$sq/squid.conf
-else . easyrsa/cn_name; fi
+else
+. easyrsa/cn_name; fi
 # Server Config
 cat > server.conf << CONF
 port 1194
@@ -147,4 +150,5 @@ systemctl restart {$sq,openvpn@server,iptab}
 clear
 wget -qO- "https://raw.githubusercontent.com/X-DCB/Unix/master/banner" | bash
 echo -ne "\nYour client config is saved in /root/client.ovpn.\nFinished! \n"
+
 exit 0
