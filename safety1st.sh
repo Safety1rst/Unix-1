@@ -122,10 +122,9 @@ client
 dev tun
 proto tcp
 remote-cert-tls server
-remote 127.0.0.1 1194
+remote 127.0.0.1 
 http-proxy $(wget -qO- ipv4.icanhazip.com) 993
 http-proxy-option VERSION 1.1
-http-proxy-option CUSTOM-HEADER Host weixin.qq.cn
 setenv opt block-outside-dns
 cipher $CIPHER
 auth SHA1
